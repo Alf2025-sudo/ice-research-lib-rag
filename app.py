@@ -13,6 +13,29 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 # 1. Load configuration and environment
 load_dotenv()
 
+# --- INJECT COMPLETE HIGH-FIDELITY MOCKUP CSS ---
+st.set_page_config(page_title="Research Library - Indigenous Peoples of Canada", page_icon="📚", layout="wide")
+
+# ==============================================================================
+# --- ACCESS TOKEN PROTECTION ---
+# Place right after st.set_page_config and BEFORE your st.markdown CSS block
+# ==============================================================================
+
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.markdown("<h2 style='color: #f0e8dc; font-family: system-ui, sans-serif;'>Restricted Library Access</h2>", unsafe_allow_html=True)
+    password = st.text_input("Enter Access Token to proceed:", type="password")
+    
+    if st.button("Unlock Dashboard"):
+        if password == "MySecretToken2026": 
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("❌ Invalid Token. Access Denied.")
+    st.stop()  # Prevents loading the rest of the app, saving your API tokens
+
 # --- SIMPLE SECURE GATEWAY ---
 def check_password():
     """Returns True if the user had the correct password."""
@@ -64,28 +87,9 @@ def init_rag():
 
 vectorstore, llm = init_rag()
 
-# --- INJECT COMPLETE HIGH-FIDELITY MOCKUP CSS ---
-st.set_page_config(page_title="Research Library - Indigenous Peoples of Canada", page_icon="📚", layout="wide")
 
-# ==============================================================================
-# --- ACCESS TOKEN PROTECTION ---
-# Place right after st.set_page_config and BEFORE your st.markdown CSS block
-# ==============================================================================
 
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
 
-if not st.session_state.authenticated:
-    st.markdown("<h2 style='color: #f0e8dc; font-family: system-ui, sans-serif;'>Restricted Library Access</h2>", unsafe_allow_html=True)
-    password = st.text_input("Enter Access Token to proceed:", type="password")
-    
-    if st.button("Unlock Dashboard"):
-        if password == "MySecretToken2026": 
-            st.session_state.authenticated = True
-            st.rerun()
-        else:
-            st.error("❌ Invalid Token. Access Denied.")
-    st.stop()  # Prevents loading the rest of the app, saving your API tokens
 
 # ==============================================================================
 # --- YOUR ORIGINAL DESIGN & APP CODE STARTS HERE ---
