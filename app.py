@@ -4,9 +4,11 @@ import pandas as pd
 from dotenv import load_dotenv
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+
+# THESE IN-DEMAND CHAINS ARE RE-ROUTED COMPACTLY
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
 
 # 1. Load configuration and environment
 load_dotenv()
