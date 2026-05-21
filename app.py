@@ -96,7 +96,7 @@ vectorstore, llm = init_rag()
 # st.markdown(""" <style> ... """)
 # ==============================================================================
 
-# --- INJECT CLEAN STYLING CORE ENGINE WITH ADVANCED CONTRAST OVERRIDES ---
+# --- INJECT MASTER STYLING ENGINE WITH SUBHEADER & CONTRAST FIXES ---
 st.markdown("""
     <style>
     /* Global Base Canvas Styles */
@@ -111,7 +111,15 @@ st.markdown("""
     }
     
     /* ==============================================================================
-       STUBBORN RADIO BUTTON TEXT CONTRAST FIXES (FOR UNDERLINED SECTIONS)
+       SUBHEADER & APP TITLES BRIGHTNESS FIX (FOR STRATEGIC ASSISTANT LINE)
+       ============================================================================== */
+    h1, h2, h3, h4, h5, h6, [data-testid="stHeaderBlockContainer"] h3 {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ==============================================================================
+       STUBBORN RADIO BUTTON TEXT CONTRAST FIXES
        ============================================================================== */
     div[data-testid="stRadio"] label p {
         color: #ffffff !important;
@@ -201,9 +209,7 @@ st.markdown("""
         border-radius: 10px; padding: 16px; font-size: 14px; line-height: 1.65;
     }
     
-    /* ==============================================================================
-       AI RESPONSE HEADINGS & SUBHEADINGS CONTRAST FIXES
-       ============================================================================== */
+    /* AI Response Internal Typographic Overrides */
     .asst-bubble-style h1, .asst-bubble-style h2, .asst-bubble-style h3, 
     .asst-bubble-style h4, .asst-bubble-style h5, .asst-bubble-style h6 {
         color: #ffffff !important;
@@ -397,11 +403,18 @@ if prompt := st.chat_input("Ask anything about Indigenous Peoples of Canada rese
         
         message_placeholder.markdown(f'<div class="asst-bubble-style">🤖 {full_response}</div>', unsafe_allow_html=True)
         
-        # --- CLOUD RETRIEVED SOURCE EXPANDER ---
+        # --- CLOUD RETRIEVED SOURCE EXPANDER (SANUTIZED LINUX MATCHING ENGINE) ---
+        # ==============================================================================
         if "context" in response:
             with st.expander("📚 View Document Sources Retrieved (Click to Download)"):
                 displayed_files = set()
                 source_idx = 1
+                
+                # Safe fallback initialization for file_links_map if loaded elsewhere
+                # Create a completely case-insensitive version with stripped whitespace keys
+                clean_file_links_map = {}
+                if 'file_links_map' in locals() or 'file_links_map' in globals():
+                    clean_file_links_map = {str(k).strip().lower(): v for k, v in file_links_map.items()}
                 
                 for doc in response["context"]:
                     source_path = doc.metadata.get('source', 'Unknown')
@@ -410,12 +423,20 @@ if prompt := st.chat_input("Ask anything about Indigenous Peoples of Canada rese
                     
                     if source_name not in displayed_files:
                         drive_link_html = ""
-                        if source_name in file_links_map:
-                            drive_id = file_links_map[source_name]
+                        
+                        # ------------------------------------------------------------------
+                        # CRITICAL FIX: SANITIZE PINECONE OUTPUT STRING
+                        # ------------------------------------------------------------------
+                        # Removes any hidden Linux/Windows carriage returns and forces lowercase
+                        lookup_key = source_name.replace("\r", "").replace("\n", "").strip().lower()
+                        
+                        if lookup_key in clean_file_links_map:
+                            drive_id = clean_file_links_map[lookup_key]
                             gdrive_url = f"https://drive.google.com/uc?export=download&id={drive_id}"
                             drive_link_html = f'<br><a class="cloud-link" href="{gdrive_url}" target="_blank">📥 Download Original Asset from Google Drive</a>'
                         else:
-                            drive_link_html = '<br><span style="color:#8c7c6a; font-size:10px;">⚠️ Unmapped in Google Drive Register</span>'
+                            # Clear fallback text showing what key it failed to match for visibility
+                            drive_link_html = f'<br><span style="color:#d4a843; font-size:11px;">⚠️ Unmapped in Google Drive Register ("{source_name}")</span>'
                         
                         st.markdown(f"""
                             <div class="src-card">
@@ -428,5 +449,4 @@ if prompt := st.chat_input("Ask anything about Indigenous Peoples of Canada rese
                         
                         displayed_files.add(source_name)
                         source_idx += 1
-
     st.session_state.messages.append({"role": "assistant", "content": full_response})
