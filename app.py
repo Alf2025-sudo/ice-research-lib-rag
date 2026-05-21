@@ -69,11 +69,36 @@ if not check_password():
 # --- GOOGLE DRIVE FILE MAPPER ---
 @st.cache_data
 def load_file_mapping():
-    if os.path.exists("file_mapping.csv"):
-        df = pd.read_csv("file_mapping.csv")
-        return dict(zip(df['filename'], df['drive_id']))
+    # 1. Get the absolute folder directory where app.py lives on the cloud
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(BASE_DIR, "file_mapping.csv")
+    
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+        
+        # Normalize column headers to lowercase to prevent NameErrors (handles 'id', 'Id', or 'drive_id')
+        df.columns = [c.strip().lower() for c in df.columns]
+        
+        # Determine your exact ID column name automatically
+        id_column = 'id' if 'id' in df.columns else ('drive_id' if 'drive_id' in df.columns else df.columns[1])
+        filename_column = 'filename' if 'filename' in df.columns else df.columns[0]
+        
+        # Drop rows missing critical mapping values
+        df = df.dropna(subset=[filename_column, id_column])
+        
+        # 2. Build the dictionary mapping pure, clean lowercase filenames to IDs
+        cleaned_map = {}
+        for _, row in df.iterrows():
+            # Strips out any paths ('ice_library\') and isolates just the pure filename
+            raw_file = str(row[filename_column]).replace('\\', '/').split('/')[-1]
+            clean_key = raw_file.strip().lower()
+            
+            cleaned_map[clean_key] = str(row[id_column]).strip()
+            
+        return cleaned_map
     return {}
 
+# Call the cached data mapping loader cleanly
 file_links_map = load_file_mapping()
 
 # --- INITIALIZE RAG SERVICES ---
@@ -86,10 +111,6 @@ def init_rag():
     return vectorstore, llm
 
 vectorstore, llm = init_rag()
-
-
-
-
 
 # ==============================================================================
 # --- YOUR ORIGINAL DESIGN & APP CODE STARTS HERE ---
@@ -403,31 +424,27 @@ if prompt := st.chat_input("Ask anything about Indigenous Peoples of Canada rese
         
         message_placeholder.markdown(f'<div class="asst-bubble-style">🤖 {full_response}</div>', unsafe_allow_html=True)
         
-        # --- CLOUD RETRIEVED SOURCE EXPANDER (SANUTIZED LINUX MATCHING ENGINE) ---
+        # --- CLOUD RETRIEVED SOURCE EXPANDER (SLASHLOCATOR STRIPPER) ---
         # ==============================================================================
         if "context" in response:
             with st.expander("📚 View Document Sources Retrieved (Click to Download)"):
                 displayed_files = set()
                 source_idx = 1
                 
-                # Safe fallback initialization for file_links_map if loaded elsewhere
-                # Create a completely case-insensitive version with stripped whitespace keys
-                clean_file_links_map = {}
-                if 'file_links_map' in locals() or 'file_links_map' in globals():
-                    clean_file_links_map = {str(k).strip().lower(): v for k, v in file_links_map.items()}
+                # Build case-insensitive lookup cache maps cleanly
+                clean_file_links_map = {str(k).strip().lower(): v for k, v in file_links_map.items()}
                 
                 for doc in response["context"]:
                     source_path = doc.metadata.get('source', 'Unknown')
-                    source_name = os.path.basename(source_path)
+                    
+                    # Convert Windows backslashes to forward slashes, then grab just the final filename segment
+                    source_name = source_path.replace('\\', '/').split('/')[-1]
                     page_num = doc.metadata.get('page', '?')
                     
                     if source_name not in displayed_files:
                         drive_link_html = ""
                         
-                        # ------------------------------------------------------------------
-                        # CRITICAL FIX: SANITIZE PINECONE OUTPUT STRING
-                        # ------------------------------------------------------------------
-                        # Removes any hidden Linux/Windows carriage returns and forces lowercase
+                        # Normalize the lookup key cleanly
                         lookup_key = source_name.replace("\r", "").replace("\n", "").strip().lower()
                         
                         if lookup_key in clean_file_links_map:
@@ -435,8 +452,7 @@ if prompt := st.chat_input("Ask anything about Indigenous Peoples of Canada rese
                             gdrive_url = f"https://drive.google.com/uc?export=download&id={drive_id}"
                             drive_link_html = f'<br><a class="cloud-link" href="{gdrive_url}" target="_blank">📥 Download Original Asset from Google Drive</a>'
                         else:
-                            # Clear fallback text showing what key it failed to match for visibility
-                            drive_link_html = f'<br><span style="color:#d4a843; font-size:11px;">⚠️ Unmapped in Google Drive Register ("{source_name}")</span>'
+                            drive_link_html = f'<br><span style="color:#d4a843; font-size:11px;">⚠️ Unmapped in Google Drive Register ("{lookup_key}")</span>'
                         
                         st.markdown(f"""
                             <div class="src-card">
@@ -449,4 +465,5 @@ if prompt := st.chat_input("Ask anything about Indigenous Peoples of Canada rese
                         
                         displayed_files.add(source_name)
                         source_idx += 1
+
     st.session_state.messages.append({"role": "assistant", "content": full_response})
