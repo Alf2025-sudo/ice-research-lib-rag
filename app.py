@@ -96,7 +96,7 @@ vectorstore, llm = init_rag()
 # st.markdown(""" <style> ... """)
 # ==============================================================================
 
-# --- INJECT CLEAN STYLING CORE ENGINE ---
+# --- INJECT CLEAN STYLING CORE ENGINE WITH ADVANCED CONTRAST OVERRIDES ---
 st.markdown("""
     <style>
     /* Global Base Canvas Styles */
@@ -108,6 +108,19 @@ st.markdown("""
     /* Global Text element overrides for sharp contrast */
     p, span, label, .stMarkdown {
         color: #f5f0e6 !important;
+    }
+    
+    /* ==============================================================================
+       STUBBORN RADIO BUTTON TEXT CONTRAST FIXES (FOR UNDERLINED SECTIONS)
+       ============================================================================== */
+    div[data-testid="stRadio"] label p {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    /* Explicitly targets the options text inside the radio selection group */
+    div[data-testid="stRadio"] div[role="radiogroup"] [data-testid="stMarkdownContainer"] p {
+        color: #ffffff !important;
+        font-weight: 500 !important;
     }
     
     /* Sidebar Layout Structure */
@@ -188,8 +201,20 @@ st.markdown("""
         border-radius: 10px; padding: 16px; font-size: 14px; line-height: 1.65;
     }
     
-    /* Typography Overrides inside Generated Responses */
-    .asst-bubble-style strong { color: #d4a843 !important; font-weight: 600; }
+    /* ==============================================================================
+       AI RESPONSE HEADINGS & SUBHEADINGS CONTRAST FIXES
+       ============================================================================== */
+    .asst-bubble-style h1, .asst-bubble-style h2, .asst-bubble-style h3, 
+    .asst-bubble-style h4, .asst-bubble-style h5, .asst-bubble-style h6 {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        margin-top: 12px !important;
+        margin-bottom: 8px !important;
+    }
+    .asst-bubble-style strong, .asst-bubble-style b { 
+        color: #ffffff !important; 
+        font-weight: 600 !important; 
+    }
     .cite { color: #ff9e42 !important; font-size: 12.5px; font-weight: bold; }
     
     /* Rich Metadata Citation Cards */
@@ -210,18 +235,8 @@ st.markdown("""
         border: 1px solid #4a3b2e !important;
         color: #ffffff !important;
     }
-    
-    /* Native Input Field Labels & Options Contrast Fixes */
-    div[data-testid="stRadio"] label p {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
 
-    /* ==============================================================================
-       HIGH VISIBILITY SIDEBAR TOGGLE FIXES (GOLD AND BLACK ACCENT ENGINES)
-       ============================================================================== */
-    
-    /* Style the toggle button when the sidebar is OPEN */
+    /* High Visibility Sidebar Toggle Triggers */
     button[data-testid="stSidebarCollapseAction"] {
         background-color: #d4a843 !important;
         color: #1a1410 !important;
@@ -238,7 +253,6 @@ st.markdown("""
         color: #1a1410 !important;
     }
 
-    /* Style the toggle tab floating on the canvas when the sidebar is CLOSED/COLLAPSED */
     div[data-testid="collapsedControl"], .st-emotion-cache-16idsys {
         background-color: #d4a843 !important;
         border: 1px solid #ffffff !important;
@@ -254,7 +268,6 @@ st.markdown("""
         box-shadow: 2px 2px 10px rgba(0,0,0,0.5) !important;
     }
     
-    /* Force the arrow icon inside the closed tab to stay deep charcoal/black for heavy contrast */
     div[data-testid="collapsedControl"] svg, .st-emotion-cache-16idsys svg {
         fill: #1a1410 !important;
         color: #1a1410 !important;
