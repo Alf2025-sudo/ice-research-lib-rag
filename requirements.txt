@@ -1,0 +1,6 @@
+langchain-pinecone
+langchain-openai
+pypdf
+tqdm
+python-dotenv
+streamlit
