@@ -96,24 +96,30 @@ vectorstore, llm = init_rag()
 # st.markdown(""" <style> ... """)
 # ==============================================================================
 
+# --- INJECT CLEAN STYLING CORE ENGINE ---
 st.markdown("""
     <style>
     /* Global Base Canvas Styles */
     .stApp {
         background-color: #1a1410 !important;
-        color: #c4b49a !important;
+        color: #ffffff !important; /* Force all base prose text to bright white */
+    }
+    
+    /* Global Text element overrides for sharp contrast */
+    p, span, label, .stMarkdown {
+        color: #f5f0e6 !important;
     }
     
     /* Sidebar Layout Structure */
     [data-testid="stSidebar"] {
         background-color: #221c16 !important;
-        border-right: 0.5px solid #3d3026 !important;
+        border-right: 0.5px solid #4a3b2e !important;
         padding: 14px 10px !important;
     }
                             
-    /* CHANGE 2: CSS Styles for the Animated System Reply Indicator Box */
+    /* CSS Styles for the Animated System Reply Indicator Box */
     @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-    .thinking-box { display: inline-flex; align-items: center; gap: 8px; background: #221c16; border: 0.5px solid #c4721f; border-radius: 8px; padding: 10px 14px; color: #d4a843; font-size: 13px; font-weight: 500; animation: pulse 1.5s infinite ease-in-out; margin-bottom: 15px; }
+    .thinking-box { display: inline-flex; align-items: center; gap: 8px; background: #221c16; border: 0.5px solid #d4a843; border-radius: 8px; padding: 10px 14px; color: #d4a843; font-size: 13px; font-weight: 500; animation: pulse 1.5s infinite ease-in-out; margin-bottom: 15px; }
     .spinner { border: 2px solid rgba(212,168,67,0.2); width: 14px; height: 14px; border-radius: 50%; border-left-color: #c4721f; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
@@ -124,29 +130,29 @@ st.markdown("""
         gap: 9px;
         margin-bottom: 14px;
         padding-bottom: 14px;
-        border-bottom: 0.5px solid #3d3026;
+        border-bottom: 0.5px solid #4a3b2e;
     }
     .logo-icon {
         width: 34px; height: 34px; background: #332a20; 
-        border: 0.5px solid #5c4a36; border-radius: 9px; 
+        border: 0.5px solid #d4a843; border-radius: 9px; 
         display: flex; align-items: center; justify-content: center;
         font-size: 16px; color: #d4a843; font-weight: bold;
     }
-    .logo-title { font-size: 13px; font-weight: 500; color: #f0e8dc; line-height: 1.2; }
-    .logo-sub { font-size: 10px; color: #8c7c6a; }
+    .logo-title { font-size: 14px; font-weight: 600; color: #ffffff !important; line-height: 1.2; }
+    .logo-sub { font-size: 11px; color: #d4a843 !important; font-weight: 500; }
     
     /* Data Metrics Badge */
     .badge {
         display: flex; align-items: center; gap: 5px; 
-        background: rgba(212,168,67,0.08); border: 0.5px solid rgba(212,168,67,0.2); 
-        color: #d4a843; font-size: 11px; padding: 6px 12px; border-radius: 20px; margin-bottom: 18px;
+        background: rgba(212,168,67,0.15); border: 1px solid #d4a843; 
+        color: #ffffff !important; font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; margin-bottom: 18px;
         width: fit-content;
     }
     
     /* Segment Group Headings */
     .sec-label { 
-        font-size: 10px; font-weight: 600; letter-spacing: 0.12em; 
-        text-transform: uppercase; color: #8c7c6a; margin-bottom: 12px; 
+        font-size: 11px; font-weight: 700; letter-spacing: 0.12em; 
+        text-transform: uppercase; color: #ffffff !important; margin-bottom: 12px; 
     }
     
     /* Mockup Mode Card Component Architecture */
@@ -158,66 +164,103 @@ st.markdown("""
         border: 0.5px solid transparent;
         transition: all 0.2s ease;
     }
-    .mode-card-title { font-size: 13px; font-weight: 500; color: #f0e8dc; }
-    .mode-card-desc { font-size: 11px; color: #8c7c6a; line-height: 1.3; margin-top: 2px; }
+    .mode-card-title { font-size: 13px; font-weight: 600; color: #ffffff !important; }
+    .mode-card-desc { font-size: 11px; color: #f5f0e6 !important; line-height: 1.3; margin-top: 2px; }
     
     /* Main Panel Header Pill */
     .mode-pill {
-        display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500;
-        color: #c4721f; background: rgba(196,114,31,0.1); 
-        border: 0.5px solid rgba(196,114,31,0.25); padding: 5px 10px; border-radius: 8px; margin-bottom: 12px;
+        display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
+        color: #ffffff !important; background: #c4721f; 
+        border: 0.5px solid #d4a843; padding: 5px 10px; border-radius: 8px; margin-bottom: 12px;
     }
     
     /* Response / Content Containers */
     .user-bubble-style {
-        background: rgba(196,114,31,0.12) !important;
-        border: 0.5px solid rgba(196,114,31,0.25) !important;
-        color: #f0e8dc !important;
-        border-radius: 10px; padding: 14px; font-size: 13.5px; line-height: 1.65;
+        background: rgba(196,114,31,0.2) !important;
+        border: 1px solid #c4721f !important;
+        color: #ffffff !important;
+        border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.65;
     }
     .asst-bubble-style {
         background: #221c16 !important;
-        border: 0.5px solid #3d3026 !important;
-        color: #c4b49a !important;
-        border-radius: 10px; padding: 16px; font-size: 13.5px; line-height: 1.65;
+        border: 1px solid #4a3b2e !important;
+        color: #ffffff !important;
+        border-radius: 10px; padding: 16px; font-size: 14px; line-height: 1.65;
     }
     
     /* Typography Overrides inside Generated Responses */
-    .asst-bubble-style strong { color: #d4a843 !important; font-weight: 500; }
-    .cite { color: #c4721f !important; font-size: 12.5px; font-weight: bold; }
+    .asst-bubble-style strong { color: #d4a843 !important; font-weight: 600; }
+    .cite { color: #ff9e42 !important; font-size: 12.5px; font-weight: bold; }
     
     /* Rich Metadata Citation Cards */
     .src-card {
-        background: #1e1813 !important; border: 0.5px solid #3d3026 !important;
+        background: #1e1813 !important; border: 1px solid #4a3b2e !important;
         border-radius: 8px; padding: 10px 14px; margin-top: 10px;
     }
-    .src-idx { font-size: 10px; font-weight: 600; color: #d4a843; text-transform: uppercase; letter-spacing: 0.08em; }
-    .src-title { font-size: 13px; color: #f0e8dc; font-family: Georgia, serif; margin-top: 3px; }
-    .src-meta { font-size: 11px; color: #8c7c6a; margin-top: 2px; }
-    .cloud-link { display: inline-block; margin-top: 8px; font-size: 11.5px; color: #d4a843 !important; text-decoration: none; font-weight: 600; }
+    .src-idx { font-size: 11px; font-weight: 700; color: #d4a843; text-transform: uppercase; letter-spacing: 0.08em; }
+    .src-title { font-size: 14px; color: #ffffff !important; font-family: Georgia, serif; margin-top: 3px; font-weight: 500; }
+    .src-meta { font-size: 11px; color: #f5f0e6 !important; margin-top: 2px; }
+    .cloud-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #d4a843 !important; text-decoration: none; font-weight: 600; }
     .cloud-link:hover { text-decoration: underline !important; }
     
     /* Style Cleanups */
     header, footer { visibility: hidden !important; }
     .stSelectbox div[data-baseweb="select"] {
         background-color: #1a1410 !important;
-        border: 0.5px solid #3d3026 !important;
-        color: #f0e8dc !important;
+        border: 1px solid #4a3b2e !important;
+        color: #ffffff !important;
     }
-    /* 1. COMPLETELY WIPE OUT THE COLLAPSE BUTTON SO IT CAN'T BE CLICKED */
+    
+    /* Native Input Field Labels & Options Contrast Fixes */
+    div[data-testid="stRadio"] label p {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    /* ==============================================================================
+       HIGH VISIBILITY SIDEBAR TOGGLE FIXES (GOLD AND BLACK ACCENT ENGINES)
+       ============================================================================== */
+    
+    /* Style the toggle button when the sidebar is OPEN */
     button[data-testid="stSidebarCollapseAction"] {
-        display: none !important;
+        background-color: #d4a843 !important;
+        color: #1a1410 !important;
+        border: 1px solid #ffffff !important;
+        border-radius: 6px !important;
+        z-index: 999999 !important;
+        opacity: 1 !important;
+    }
+    button[data-testid="stSidebarCollapseAction"]:hover {
+        background-color: #ffffff !important;
+    }
+    button[data-testid="stSidebarCollapseAction"] svg {
+        fill: #1a1410 !important;
+        color: #1a1410 !important;
     }
 
-    /* 2. REMOVE THE INVISIBLE RESIZER DRAG-BAR TO PREVENT MANUAL COLLAPSING */
-    [data-testid="stSidebarResizer"] {
-        display: none !important;
+    /* Style the toggle tab floating on the canvas when the sidebar is CLOSED/COLLAPSED */
+    div[data-testid="collapsedControl"], .st-emotion-cache-16idsys {
+        background-color: #d4a843 !important;
+        border: 1px solid #ffffff !important;
+        border-radius: 0 8px 8px 0 !important;
+        z-index: 9999999 !important; 
+        left: 0 !important;
+        top: 12px !important;
+        width: 44px !important;
+        height: 40px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.5) !important;
     }
-
-    /* 3. ENSURE SIDEBAR RETAINS ITS FULL WIDTH AND CAN'T SHRINK TO 0 */
-    [data-testid="stSidebar"] {
-        min-width: 320px !important;
-    }       
+    
+    /* Force the arrow icon inside the closed tab to stay deep charcoal/black for heavy contrast */
+    div[data-testid="collapsedControl"] svg, .st-emotion-cache-16idsys svg {
+        fill: #1a1410 !important;
+        color: #1a1410 !important;
+        width: 24px !important;
+        height: 24px !important;
+    }        
     </style>
 """, unsafe_allow_html=True)
 
