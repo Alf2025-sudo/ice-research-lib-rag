@@ -4,3 +4,7 @@ pypdf
 tqdm
 python-dotenv
 streamlit
+pandas
+langchain
+langchain-community
+langchain-core
